@@ -1,0 +1,566 @@
+<style>
+	#creativeAdWrapper {
+		position: absolute;
+		top: 0px;
+		left: 50%;
+		margin-left: -750px;
+		width: 1500px;
+		height: 1000px;
+		cursor: pointer;
+		z-index: 0;
+		display: none;
+	}
+	#creativeSkin {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		z-index: 0;
+	}
+	#creativeVideoWrapper {
+		position: absolute; 
+		cursor: pointer; 
+		z-index: 1000; 
+	}
+	#creativeVideo {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		z-index: 1000;
+		cursor: pointer;
+	}
+	#creativeVideoScreen {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		z-index: 1100;
+		cursor: pointer;
+	}
+	#creativeVideoPlayBtn {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		margin: -25px;
+		width: 50px;
+		height: 50px;
+		z-index: 1200;
+		cursor: pointer;
+	}
+	#creativeVideoPauseBtn {
+		position: absolute;
+		right: 10px;
+		bottom: 10px;
+		width: 25px;
+		height: 25px;
+		z-index: 1200;
+		cursor: pointer;
+		display: none;
+	}
+	#bgClickRight {
+		position: fixed;
+		left: 0px;
+		top: 128px;
+		width: 100%;
+		height: 100%;
+		background-color: #FF0004;
+		opacity: 0;
+		cursor: pointer;
+		display: none;	
+	}
+	#bgClickLeft {
+		position: fixed;
+		right: 0px;
+		top: 128px;
+		width: 100%;
+		height: 100%;
+		background-color: #09C3DE;
+		opacity: 0;
+		cursor: pointer;
+		display: none;
+	}
+	
+	/*******************************/
+	/****** !!! CSS KUNDE !!! ******/
+	/*******************************/
+
+
+</style>
+<!-- Google Analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66659558-3', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type='text/javascript'>var jq1110 = jQuery.noConflict(true);</script>  
+<script>
+	
+	/**************************************/
+	/****** !!! VARS KUNDE START !!! ******/
+	/**************************************/
+
+	// Campagne name --> Videotracking 
+	var videoTitle = 'unique name'
+
+
+	// Background-Color | Insert Hex-Code
+	var creativeBgColor = "3f0e0e";
+	
+	// Video-Measurement | in pixels
+	var creativeVideoWidth = 444;
+	var creativeVideoHeight = 250;
+	
+	// Video-Position | in pixels
+	var creativeVideoX = 260;
+	var creativeVideoY = 0;
+
+    // Background-Skin source
+    var creativeSkin_src = "http://download.gamestar.de/media/html5_ad_test/files/2016_04_26_bg_network_test/img/network_bf_brandgate_skin_ne.jpg";
+    
+    // Video sources
+    var creativeVideo_src_mp4 = "http://download.gamestar.de/media/upload/battlefront/2015_11_12_brandgate/vid/battlefront_trailer_usk.mp4";
+    var creativeVideo_src_webm = "http://download.gamestar.de/media/upload/battlefront/2015_11_12_brandgate/vid/battlefront_trailer_usk.webm";
+	
+	// Video screen
+    var creativeVideoScreen_src = "http://download.gamestar.de/media/html5_ad_test/files/2016_04_26_bg_network_test/img/screen.jpg";
+	
+	/**************************************/
+	/****** !!! VARS KUNDE ENDE !!! *******/
+	/**************************************/
+
+	// Clicktags
+	var clickTag01 = "%%CLICK_URL_UNESC%%%%DEST_URL%%";
+	// var clickTag02 = "XxXxXxXxXxXxXx";
+	// var clickTag03 = "XxXxXxXxXxXxXx";
+	// var clickTag04 = "XxXxXxXxXxXxXx";
+	// var clickTag05 = "XxXxXxXxXxXxXx";
+	
+	// Url-query
+	var siteHasUrl = window.location.host;
+	console.log(siteHasUrl);
+	
+	// Video global variable
+	var creativeVideo;
+	
+	// Init sources
+    function attachSources() {
+        jq1110("#creativeSkin").attr("src", creativeSkin_src);
+        jq1110("#creativeVideoScreen").attr("src", creativeVideoScreen_src);
+        jq1110("#creativeVideo > source[type='video/mp4']").attr("src", creativeVideo_src_mp4);
+        jq1110("#creativeVideo > source[type='video/webm']").attr("src", creativeVideo_src_webm);
+        jq1110("#creativeVideo").get(0).load();
+    }
+	
+	// Global adjustments
+	function globalAdjust() {
+		jq1110("#ad-fullbanner2").css({"height": "250px"});
+		jq1110("#creativeVideo, #creativeVideoScreen, #creativeVideoWrapper").css({"width": creativeVideoWidth, "height": creativeVideoHeight});
+		jq1110("#creativeVideoWrapper").css({"left": creativeVideoX, "top": creativeVideoY});
+		jq1110("body").css({"background-color": creativeBgColor})
+		if (siteHasUrl != "www.gamestar.de" || "www.gamepro.de")
+		{
+			jq1110.when(
+				jq1110("#ads-outer").css({"padding-bottom": "0"})
+			)
+			.done(function() {
+				urlLocation();
+			});
+		}
+		urlLocation();
+	}
+
+	// Check location
+	function urlLocation() {
+		if (siteHasUrl != "www.texturio.com")
+		{
+		  jq1110("body").css("overflow-x","hidden");
+		  jq1110("body").wrapInner('<div class="wrapping" style="overflow-x:hidden"></div>');
+		}
+		if(siteHasUrl=="www.gamestar.de") {
+			jq1110.when(
+				jq1110("#body").css("padding-top", "145px"),
+				jq1110("#content").css({"z-index": "1", "width": "980px", "margin": "0 auto"}),
+				jq1110("#lbSpacer").css({"height": "0px"}),
+				jq1110(".leaderboard").parent().css({"position": "relative", "margin": "0 auto", "float": ""}).detach().insertAfter("#lbSpacer"),
+				jq1110(".leaderboard div").css({"z-index": "0"}),
+				jq1110("#ad-fullbanner2").parent().css("z-index","0"),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "128px"}),
+				jq1110("#lbSpacer").next().next().children(":first").css("height", "0px")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		} 
+		else if(siteHasUrl=="www.gamepro.de") {
+			jq1110.when(
+				jq1110("#lbSpacer").css({"height": "0px"}),
+				jq1110(".leaderboard").parent().css({"position": "relative", "margin": "0 auto", "float": ""}).detach().insertAfter("#lbSpacer"),
+				jq1110(".leaderboard div").css({"z-index": "0"}),
+				jq1110("#ad-fullbanner2").parent().css("z-index","0"),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "127px"}),
+				jq1110("#lbSpacer").next().next().children(":first").css("height", "0px")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.onlinewelten.com") {
+			jq1110.when(
+				jq1110("#ads-outer").css({"z-index": "0", "margin-top": "-9px"}).detach().insertAfter(".topcontent"),
+				jq1110("#ad-fullbanner2").css({"margin-left": "", "margin-right": ""}),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "149px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.areagames.de") {
+			jq1110.when(
+				jq1110("#ads-outer").css({"z-index": "0", "margin-top": "-4px"}).detach().insertAfter(".nw_navbar"),
+				jq1110("#ad-fullbanner2").css({"margin-left": "", "margin-right": ""}),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "35px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.pietsmiet.de") {
+			jq1110.when(
+				jq1110("#ads-outer").css({"z-index": "0", "padding-top": "0px"}),
+				jq1110("#ad-fullbanner2").css({"margin-top": "0px"}),
+				jq1110("#creativeSkin").css("max-width", "1580px"),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="mein-mmo.de") {
+			jq1110.when(
+				jq1110("#ads-outer").css({"z-index": "0", "margin": "-10px auto 0px", "height": "250px"}),
+				jq1110(".header-ad").css("padding", "").css("padding", "0 0 0 0 !important"),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"}),
+				jq1110("#owm-boxed").css("margin", "-10px auto 0px auto !important"),
+				jq1110("#ad-fullbanner2").css("margin-top", "10px"),
+				jq1110("#creativeSkin").css({"left": "-5px" })
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.texturio.com") {
+			jq1110.when(
+				jq1110("#ad-fullbanner2").css({"padding": "0", "margin": "-3px auto"}),
+				jq1110("#wrapper").css({"z-index": "1", "margin": "0 auto", "width": "980px"}),
+				jq1110("#ads-outer").css({"z-index": "1"}),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "35px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="broadmark.de") {
+			jq1110.when(
+				jq1110("#ad-fullbanner2").css({"margin": "-15px 0 0px -25px"}),
+				jq1110("#ad-fullbanner2-outer").css({"margin-bottom": "-20px"}),
+				jq1110("#leaderboard").css({"padding-top": "5px"}),
+				jq1110(".container").css({"position": "relative"}),
+				jq1110("#ads-outer").css({"z-index": "0"}),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "35px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.ps4-magazin.de") {
+			jq1110.when(
+				jq1110("#ads-outer").css({"z-index": "-1", "margin-top": "-2px"}),
+				jq1110("#ad-fullbanner2").css({"margin": "0 auto"}),
+				jq1110("#aContainer").css("margin-top", "-17px"),
+				jq1110("#mainContainer").css({"background-color": "#cecece"}),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="nintendo-online.de") {
+			jq1110.when(
+				jq1110("#ads-outer").css({"padding-top": "0px", "z-index": "0"}),
+				jq1110("#wrapper").css({"position": "relative", "z-index": "1"}),
+				jq1110("#top-bar").css({"z-index": "1"}),
+				jq1110("#ad-fullbanner2").css("margin", "0 auto"),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "38px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="forum.craftnation.de") {
+			jq1110.when(
+				jq1110("body").css("padding-top", "0"),
+				jq1110(".layoutFixed").css({"position": "relative"}),
+				jq1110("#pageHeader").css({"background-color": "#fff"}),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="de.ign.com") {
+			jq1110.when(
+				jq1110("#ads-outer").css({"margin-top": "0", "z-index": "0"}),
+				jq1110("#ad-fullbanner2").css("margin", "0px auto -10px auto"),
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"})
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.gamespilot.de") {
+			jq1110.when(
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"}),
+				jq1110("#ad-fullbanner2").css("margin", "9px 0 0 auto"),
+				jq1110(".layout--wrapped-content").css("padding", "10px 10px 10px"),
+				jq1110("#ads-outer").css({"z-index": "0", "margin-top": "-9px"}).detach().insertBefore(".layout--wrapped-content")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.moviepilot.de") {
+			jq1110.when(
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"}),
+				jq1110("#ad-fullbanner2").css("margin", "9px 0 0 auto"),
+				jq1110("#ads-outer").css({"z-index": "0", "margin-top": "-9px"}).detach().insertBefore("#page")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="pre.www.moviepilot.de") {
+			jq1110.when(
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"}),
+				jq1110("#ad-fullbanner2").css("margin", "9px 0 0 auto"),
+				jq1110("#ads-outer").css({"z-index": "0", "margin-top": "-9px"}).detach().insertBefore("#page")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="test.www.moviepilot.de") {
+			jq1110.when(
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"}),
+				jq1110("#ad-fullbanner2").css("margin", "9px 0 0 auto"),
+				jq1110("#ads-outer").css({"z-index": "0", "margin-top": "-9px"}).detach().insertBefore("#page")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.xboxdynasty.de") {
+			jq1110.when(
+				jq1110("body").css({"background-image": "none"}),
+				jq1110("#ad-fullbanner2-outer").css({"z-index": "0", "margin": "-4px 0px 0px 0px"}),
+				jq1110("#ad-fullbanner2").css("margin", "0 0 0 auto")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.gtainside.com") {
+			jq1110.when(
+				jq1110("body").css({"background-image": "none"}),
+				jq1110("#ad-fullbanner2-outer").css({"z-index": "0", "margin": "-9px 0px 0px 0px"}),
+				jq1110("#ad-fullbanner2").css("margin", "0 0 0 auto")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="www.filmstarts.de") {
+			jq1110.when(
+				jq1110("#topheader").css({"z-index": "0"}),
+				jq1110(".topheader").css({"z-index": "0"}),
+				jq1110("#contentlayout").css("position", "relative")
+			)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+		else if(siteHasUrl=="") {
+			jq1110.when(
+				jq1110("#bgClickRight, #bgClickLeft").css({"top": "0px"})
+				)
+			.done(function() {
+				startCreativeAd();
+			});
+		}
+	}
+
+	// Show ad
+	function startCreativeAd() {
+		jq1110("#creativeAdWrapper").show();
+	}
+	// Video play
+	function creativeVideoPlay() {
+		creativeVideo.play();
+		jq1110("#creativeVideoScreen").fadeOut();
+		jq1110("#creativeVideoPlayBtn").fadeOut();
+		jq1110("#creativeVideoPauseBtn").fadeIn();
+	}
+
+	// Video pause
+	function creativeVideoPause() {
+		creativeVideo.pause();
+		jq1110("#creativeVideoPauseBtn").fadeOut();
+		jq1110("#creativeVideoPlayBtn").fadeIn();
+	}
+
+	// Video end
+	function creativeVideoEnd() {
+		creativeVideo.currentTime = 0;
+		creativeVideo.pause();
+		jq1110("#creativeVideoScreen").fadeIn();
+		jq1110("#creativeVideoPlayBtn").fadeIn();
+		jq1110("#creativeVideoPauseBtn").fadeOut();
+	}
+	
+	// Clicktag 01
+	function clickme(){
+		window.open(clickTag01);
+		pause();
+	}
+
+	// Clicktag 02
+	function clickme2(){
+		window.open(clickTag02);
+		pause();
+	}
+	
+	// document ready function
+	jq1110(document).ready(function(e) {
+		// Initialise video
+		creativeVideo = document.getElementById("creativeVideo");
+		// Call functions
+		attachSources();
+		globalAdjust();
+		// Video Player
+		jq1110("#creativeVideoPlayBtn").click(creativeVideoPlay);
+		jq1110("#creativeVideoPauseBtn").click(creativeVideoPause);
+		jq1110("#creativeVideo").bind("ended", creativeVideoEnd);
+		// bg-click
+		var b = jq1110(window).width();
+		var dx = (b / 2) - 490;
+		var xl = b - b;
+		var xr = (b / 2) + 490;
+		jq1110("#bgClickRight").css("left", xr + "px");
+		jq1110("#bgClickLeft").width(dx).css("left", xl + "px");
+		jq1110(window).resize(function(e) {
+			var b = jq1110(window).width();
+			var dx = (b / 2) - 490;
+			var xl = b - b;
+			var xr = (b / 2) + 490;
+			jq1110("#bgClickRight").css("left", xr + "px");
+			jq1110("#bgClickLeft").width(dx).css("left", xl + "px");
+		});	
+		jq1110("#bgClickRight").delay(5000).fadeIn();
+		jq1110("#bgClickLeft").delay(5000).fadeIn();
+	});
+
+
+/////////////////////////////////
+// Videotracking
+/////////////////////////////////
+
+document.addEventListener('DOMContentLoaded', init, false)
+
+//var videoTitle = videoId.getAttribute('data-description')
+
+
+function init () {
+	creativeVideo.addEventListener('ended', videoEnd, false)
+	creativeVideo.addEventListener('timeupdate', videoTimeUpdate, false)
+	creativeVideo.addEventListener('play', videoPlay, false)
+	creativeVideo.addEventListener('pause', videoPause, false)
+}
+
+function setKeyFrames (duration) {
+	var quarter = (duration / 4).toFixed(1)
+	sessionStorage.setItem('one', quarter)
+	sessionStorage.setItem('two', (quarter * 2).toFixed(1))
+	sessionStorage.setItem('three', (quarter * 3).toFixed(1))
+}
+
+function videoTimeUpdate () {
+		var curTime = creativeVideo.currentTime.toFixed(1)
+		switch (curTime) {
+			case sessionStorage.getItem('one'):
+				ga('send', 'event', 'video', '25% video played', videoTitle)
+				sessionStorage.setItem('one', null)
+			case sessionStorage.getItem('two'):
+				ga('send', 'event', 'video', '50% video played', videoTitle)
+				sessionStorage.setItem('two', null)
+			case sessionStorage.getItem('three'):
+				ga('send', 'event', 'video', '75% video played', videoTitle)
+				sessionStorage.setItem('three', null)
+		}
+}
+
+function videoEnd () {
+	ga('send', 'event', 'video', '100% video played', videoTitle)
+}
+
+function videoPlay () {
+	ga('send', 'event', 'video', 'video played', videoTitle)
+	setKeyFrames(this.duration)
+}
+
+function videoPause () {
+	ga('send', 'event', 'video', 'video paused', videoTitle)
+}
+
+/////////////////////////////////
+
+
+</script>
+
+<!-- bg-click -->
+<div id="bgClickRight" onClick="javascript: clickme()"></div>
+<div id="bgClickLeft" onClick="javascript: clickme()"></div>
+
+<!-- Ad -->
+<div id="creativeAdWrapper">
+	
+	<!-- Background-Skin -->
+	<img id="creativeSkin" src="" onClick="javascript: clickme()">
+    
+    <!-- Video Player -->
+    <div id="creativeVideoWrapper">
+        <video id="creativeVideo">
+            <source src="" type="video/mp4">
+            <source src="" type="video/webm">
+        </video>
+        <img id="creativeVideoScreen" src="">
+        <img id="creativeVideoPlayBtn" src="http://download.gamestar.de/media/upload/video_assets/btn_play_w_50x50.png">
+        <img id="creativeVideoPauseBtn" src="http://download.gamestar.de/media/upload/video_assets/btn_pause_w_25x25.png">
+    </div>
+</div>
+
+<!-- 71 SCRIPT -->
+<script>
+	if (window.SoiAdTemplate) SoiAdTemplate.setAdTrace(
+		{
+		  place: 'fullbanner2',
+		  pos: Number('%p;pos=!;') || '',
+		  name: 'Oli/Jakob_Testumgebung orderId=%ebuy! lineItemId=%eaid! creativeId=%ecid!',
+		  modifier: 'fireplace',
+		  width: '980',
+		  height: '240'
+		}
+	);
+</script>
